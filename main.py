@@ -16,6 +16,14 @@ class CloudStorage:
     def set_file_path(self, file_path):
         self.__file_path=file_path
         
+    def read_file(self):
+        try:
+            with open(self.get_file_path(), 'rb') as file:
+                file_content=file.read()
+            return file_content
+        except:
+            print(f"{self.get_file_path()} not found")
+            return None
     
     def store_file(self):
         pass
