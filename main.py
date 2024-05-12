@@ -4,24 +4,20 @@ from utils import generate_6_digit_id
 import time
 import requests
 import json
+# from telegram.ext import Updater, MessageHandler, Filters
 
 class CloudStorage:
     def __init__(self) -> None:
         self.connection=sqlite3.connect('storage.db')
         self.table="Files"
         self.max_file_size=10 #mb
-        # self.__file_path=file_path
-        # self.size=os.path.getsize(self.get_file_path())
-
-    # def get_file_path(self):
-    #     return self.__file_path
-    
-    # def set_file_path(self, file_path):
-    #     self.__file_path=file_path
     
     @staticmethod
     def file_exist(file):
         return os.path.exists(file)
+    
+    def give_file_name(self, file_path):
+        return os.path.basename(file_path)
     
     def check_file_size(self, file):
         if CloudStorage.file_exist(file):
@@ -41,27 +37,33 @@ class CloudStorage:
             return None
     
     def store_file(self, file_path):
-        file_id=generate_6_digit_id()
-        try:
-            connection=sqlite3.connect('storage.db')
-            cursor=connection.cursor()
-            cursor.execute(f'''CREATE TABLE IF NOT EXISTS {self.table} (id INTEGER PRIMARY KEY, file_id INTEGER, content BLOB, timestamp INTEGER)''')
-            timestamp = int(time.time())  
-            cursor.execute(f'''INSERT INTO {self.table} (file_id, content, timestamp) VALUES (?, ?, ?)''', (file_id, CloudStorage.read_file(file_path), timestamp))
-            connection.commit()
-            return file_id
-        except sqlite3.Error as e:
-            print(f"Error: SQLite error - {e}")
-        finally:
-            connection.close()
-    
+        if self.check_file_size(file_path) is not None:
+            file_id=generate_6_digit_id()
+            try:
+                connection=sqlite3.connect('storage.db')
+                cursor=connection.cursor()
+                file_name=self.give_file_name(file_path)
+                cursor.execute(f'''CREATE TABLE IF NOT EXISTS {self.table} (id INTEGER PRIMARY KEY, file_name TEXT, file_id INTEGER, content BLOB, timestamp INTEGER)''')
+                timestamp = int(time.time())  
+                cursor.execute(f'''INSERT INTO {self.table} (file_name, file_id, content, timestamp) VALUES (?, ?, ?, ?)''', (file_name, file_id, CloudStorage.read_file(file_path), timestamp))
+                connection.commit()
+                return file_id
+            except sqlite3.Error as e:
+                print(f"Error: SQLite error - {e}")
+            finally:
+                connection.close()
+        return "FIle size exceeding"
+        
     def retrieve_file(self, file_id):
         try:
             cursor = self.connection.cursor()
-            cursor.execute(f'''SELECT content FROM {self.table} WHERE file_id = ?''', (file_id,))
-            file_content = cursor.fetchone()[0]
+            cursor.execute(f'''SELECT file_name, content FROM {self.table} WHERE file_id = ?''', (file_id,))
+            name_content = cursor.fetchone()
+            file_name, file_content = name_content
+            file_path = os.path.join("downloads", file_name)
+            with open(file_path, 'wb') as file:
+                file.write(file_content)
             self.connection.close()
-            print(file_content)
         except sqlite3.Error as er:
             print(er)
             return None
@@ -120,13 +122,14 @@ class SendAnywhere(CloudStorage):
         if response.status_code==200:
             return response.text
         
-        
-        
 
     
 obj=CloudStorage()
-# obj.store_file('sql_help.py')
+print(obj.store_file("/home/samandar/Documents/rus_tili.pdf"))
+obj.retrieve_file(299969)
+
 # obj.retrieve_file(403027)
-obj2=SendAnywhere()
-obj2.store_file("/home/samandar/samandar/labnotes-beta.pdf")
+# obj2=SendAnywhere()
+# obj2.store_file("/home/samandar/samandar/labnotes-beta.pdf")
+
 
