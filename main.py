@@ -9,7 +9,7 @@ class CloudStorage:
     def __init__(self) -> None:
         self.connection=sqlite3.connect('storage.db')
         self.table="Files"
-        max_file_size=10 #mb
+        self.max_file_size=10 #mb
         # self.__file_path=file_path
         # self.size=os.path.getsize(self.get_file_path())
 
@@ -25,8 +25,10 @@ class CloudStorage:
     
     def check_file_size(self, file):
         if CloudStorage.file_exist(file):
-            return os.path.getsize(file)
-        return 0
+            file_size=os.path.getsize(file)/(1024 * 1024)
+            if file_size<11:
+                return file_size
+        return None
     
     @staticmethod
     def read_file(file_path):
@@ -74,7 +76,11 @@ class CloudStorage:
         except sqlite3.Error as e:
             print(f"Error: SQLite error - {e}")
 
-
+class CloudPicture(CloudStorage):
+    def __init__(self) -> None:
+        super().__init__()
+        self.table="Pictures"
+        self.max_size=5
 
 class SendAnywhere(CloudStorage):
     def __init__(self):
@@ -85,20 +91,23 @@ class SendAnywhere(CloudStorage):
         
     def store_file(self, file_path):
         try:
-            data = requests.get(self.device_url, auth=(self.api_key, ''))
-            device_key = data.json()['device_key']
-            
-            data = {"file": [{"name": "/home/samandar/samandar/labnotes-beta.pdf", "size": 2}]}
-            json_data = json.dumps(data)
-            self.cookies={'device_key':device_key}
-            response=requests.get(self.upload_url, params=json_data, cookies=self.cookies)
-            print(response.text)
-            
-            if response.status_code == 200:
-                return response.json()['weblink']
-            else:
-                print(f"Error: Failed to upload the file. Status code: {response.status_code}")
-                return None
+            if self.check_file_size(file_path) is not None:
+                data = requests.get(self.device_url, auth=(self.api_key, ''))
+                device_key = data.json()['device_key']
+                data_p = {"file": [{"name": file_path, "size": 2}]}
+                json_data = json.dumps(data_p)
+                self.cookies={'device_key':device_key}
+                print(json_data)
+                print(self.cookies)
+                response=requests.get(self.upload_url, params=json_data, cookies=self.cookies)
+                print(response.text)
+                
+                if response.status_code == 200:
+                    return response.json()['weblink']
+                else:
+                    print(f"Error: Failed to upload the file. Status code: {response.status_code}")
+                    return None
+            return "File Not FOUND"
         except Exception as e:
             print(f"Error: {e}")
             return None
@@ -110,11 +119,14 @@ class SendAnywhere(CloudStorage):
         response = requests.get(download_url, params=params, cookies=self.cookies)
         if response.status_code==200:
             return response.text
-    
+        
+        
+        
+
     
 obj=CloudStorage()
 # obj.store_file('sql_help.py')
 # obj.retrieve_file(403027)
 obj2=SendAnywhere()
-obj2.store_file("sql_help.py")
+obj2.store_file("/home/samandar/samandar/labnotes-beta.pdf")
 
