@@ -10,7 +10,7 @@ class CloudStorage:
     def __init__(self) -> None:
         self.connection=sqlite3.connect('storage.db')
         self.table="Files"
-        self.max_file_size=10 #mb
+        self.__max_file_size=10 #mb
     
     @staticmethod
     def file_exist(file):
@@ -82,7 +82,7 @@ class CloudPicture(CloudStorage):
     def __init__(self) -> None:
         super().__init__()
         self.table="Pictures"
-        self.max_size=5
+        self.__max_size=5
 
 class SendAnywhere(CloudStorage):
     def __init__(self):
@@ -91,17 +91,16 @@ class SendAnywhere(CloudStorage):
         self.device_url="https://send-anywhere.com/web/v1/device"
         self.cookies={}
         
-    def store_file(self, file_path):
+    def store_file(self, file_path):   # method overriding
         try:
             if self.check_file_size(file_path) is not None:
+                file_cont=CloudStorage.read_file(file_path)
                 data = requests.get(self.device_url, auth=(self.api_key, ''))
                 device_key = data.json()['device_key']
-                data_p = {"file": [{"name": file_path, "size": 2}]}
-                json_data = json.dumps(data_p)
+                data_p = {"file": [{"name": file_path, "size": 32.2}]}
+                print(data_p)
                 self.cookies={'device_key':device_key}
-                print(json_data)
-                print(self.cookies)
-                response=requests.get(self.upload_url, params=json_data, cookies=self.cookies)
+                response=requests.get(self.upload_url, params=data_p, cookies=self.cookies)
                 print(response.text)
                 
                 if response.status_code == 200:
@@ -115,18 +114,43 @@ class SendAnywhere(CloudStorage):
             return None
         
         
-    def receieve_file(self, key, web_link):
+    def receieve_file(self, key, web_link): # method overloading
         download_url="https://send-anywhere.com/web/v1/key/{key}"
         params={"key":key, "weblink":web_link}
         response = requests.get(download_url, params=params, cookies=self.cookies)
         if response.status_code==200:
             return response.text
         
+# class SaveTelegram(CloudStorage):
+#         def __init__(self, token):
+#             self.token = token
+#             self.cursor = self.connection.cursor()
+#             self.cursor.execute('''CREATE TABLE IF NOT EXISTS Files (
+#                                     id INTEGER PRIMARY KEY, file_name TEXT,
+#                                     file_id INTEGER, file_content BLOB
+#                                 )''')
+#             self.conn.commit()
+#             self.updater = Updater(token=self.token, use_context=True)
+#             self.connection = self.updater.dispatcher
+#             self.connection.add_handler(MessageHandler(Filters.document, self.handle_file))
 
+#         def handle_file(self, update, context):
+#             file = context.bot.get_file(update.message.document.file_id)
+#             file_name = update.message.document.file_name
+#             file_content = file.download_as_bytearray()
+
+#             self.cursor.execute("INSERT INTO Files (file_name, file_content) VALUES (?, ?)", (file_name, file_content))
+#             self.connection.commit()
+#             update.message.reply_text("File stored successfully.")
     
-obj=CloudStorage()
-print(obj.store_file("/home/samandar/Documents/rus_tili.pdf"))
-obj.retrieve_file(299969)
+#         def idle(self):
+#             self.updater.idle()
+
+obj=SendAnywhere()
+obj.store_file("/home/samandar/samandar/1.pdf")
+
+# print(obj.store_file("/home/samandar/samandar/ma0405b.pdf"))
+# obj.retrieve_file()
 
 # obj.retrieve_file(403027)
 # obj2=SendAnywhere()
