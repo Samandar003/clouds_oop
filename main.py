@@ -6,10 +6,16 @@ import json
 import random
 
 class CloudStorage:
+    counts=0
     def __init__(self) -> None:
         self.connection=sqlite3.connect('storage.db')
         self.table="Files"
         self.__max_file_size=10 #mb
+        CloudStorage.count+=1   # to
+    
+    @classmethod  # that variable is owned by class, cls is the best way to access
+    def count_objs(cls):
+        return cls.count 
     
     @staticmethod
     def file_exist(file):
@@ -125,7 +131,7 @@ class SendAnywhere(CloudStorage):
             return response.text
         
         
-    def vanish_file(self, file_id):   # in sendanywhere , it is automatically deleted after 10 mins
+    def vanish_file(self, file_id=None):   # in sendanywhere , it is automatically deleted after 10 mins
         pass
         
 
