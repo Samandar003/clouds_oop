@@ -26,9 +26,10 @@ class TestCloudStorage(unittest.TestCase):
         self.assertGreater(self.obj1.store_file("something.html"), 0)
         
     def test_retrieve(self):
-        self.assertEqual(self.obj1.retrieve_file(214689), "donwloaded..")
+        self.assertIsNone(self.obj1.retrieve_file(123))
         
-    
+    def test_vanish_file(self):
+        self.assertNotEqual(self.obj1.vanish_file(12), f"File with file_id {12} deleted.")
     
 if __name__ == '__main__':
     unittest.main()       
