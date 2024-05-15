@@ -121,6 +121,10 @@ class SendAnywhere(CloudStorage):
         if response.status_code==200:
             return response.text
         
+        
+    def vanish_file(self, file_id):   # in sendanywhere , it is automatically deleted after 10 mins
+        pass
+        
 # class SaveTelegram(CloudStorage):
 #         def __init__(self, token):
 #             self.token = token
