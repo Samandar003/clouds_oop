@@ -1,10 +1,9 @@
 # Clouds
 import os, sqlite3
-from utils import generate_6_digit_id
 import time
 import requests
 import json
-# from telegram.ext import Updater, MessageHandler, Filters
+import random
 
 class CloudStorage:
     def __init__(self) -> None:
@@ -27,7 +26,11 @@ class CloudStorage:
         return None
     
     @staticmethod
-    def read_file(file_path):
+    def generate_6_digit_id():
+        return ''.join([str(random.randint(0, 9)) for _ in range(6)])
+
+    
+    def read_file(self, file_path):
         try:
             with open(file_path, 'rb') as file:
                 file_content=file.read()
@@ -38,14 +41,14 @@ class CloudStorage:
     
     def store_file(self, file_path):
         if self.check_file_size(file_path) is not None:
-            file_id=generate_6_digit_id()
+            file_id=CloudStorage.generate_6_digit_id()
             try:
                 connection=sqlite3.connect('storage.db')
                 cursor=connection.cursor()
                 file_name=self.give_file_name(file_path)
                 cursor.execute(f'''CREATE TABLE IF NOT EXISTS {self.table} (id INTEGER PRIMARY KEY, file_name TEXT, file_id INTEGER, content BLOB, timestamp INTEGER)''')
                 timestamp = int(time.time())  
-                cursor.execute(f'''INSERT INTO {self.table} (file_name, file_id, content, timestamp) VALUES (?, ?, ?, ?)''', (file_name, file_id, CloudStorage.read_file(file_path), timestamp))
+                cursor.execute(f'''INSERT INTO {self.table} (file_name, file_id, content, timestamp) VALUES (?, ?, ?, ?)''', (file_name, file_id, self.read_file(file_path), timestamp))
                 connection.commit()
                 return file_id
             except sqlite3.Error as e:
@@ -94,7 +97,7 @@ class SendAnywhere(CloudStorage):
     def store_file(self, file_path):   # method overriding
         try:
             if self.check_file_size(file_path) is not None:
-                file_cont=CloudStorage.read_file(file_path)
+                file_cont=self.read_file(file_path)
                 data = requests.get(self.device_url, auth=(self.api_key, ''))
                 device_key = data.json()['device_key']
                 data_p = {"file": [{"name": file_path, "size": 32.2}]}
@@ -125,33 +128,15 @@ class SendAnywhere(CloudStorage):
     def vanish_file(self, file_id):   # in sendanywhere , it is automatically deleted after 10 mins
         pass
         
-# class SaveTelegram(CloudStorage):
-#         def __init__(self, token):
-#             self.token = token
-#             self.cursor = self.connection.cursor()
-#             self.cursor.execute('''CREATE TABLE IF NOT EXISTS Files (
-#                                     id INTEGER PRIMARY KEY, file_name TEXT,
-#                                     file_id INTEGER, file_content BLOB
-#                                 )''')
-#             self.conn.commit()
-#             self.updater = Updater(token=self.token, use_context=True)
-#             self.connection = self.updater.dispatcher
-#             self.connection.add_handler(MessageHandler(Filters.document, self.handle_file))
 
-#         def handle_file(self, update, context):
-#             file = context.bot.get_file(update.message.document.file_id)
-#             file_name = update.message.document.file_name
-#             file_content = file.download_as_bytearray()
 
-#             self.cursor.execute("INSERT INTO Files (file_name, file_content) VALUES (?, ?)", (file_name, file_content))
-#             self.connection.commit()
-#             update.message.reply_text("File stored successfully.")
-    
-#         def idle(self):
-#             self.updater.idle()
+obj=CloudStorage()
+# print(obj.store_file("utils.py"))
+obj.retrieve_file("072621")
 
-obj=SendAnywhere()
-obj.store_file("/home/samandar/samandar/1.pdf")
+
+# obj=SendAnywhere()
+# obj.store_file("/home/samandar/samandar/1.pdf")
 
 # print(obj.store_file("/home/samandar/samandar/ma0405b.pdf"))
 # obj.retrieve_file()
