@@ -1,4 +1,4 @@
-from main import CloudStorage, CloudPicture
+from main import CloudStorage, CloudPicture, SendAnywhere
 import unittest
 
 
@@ -36,6 +36,20 @@ class TestCloudStorage(unittest.TestCase):
         
     def test_give_pic_name(self):
         self.assertEqual(self.obj2.give_file_name("/home/samandar/samandar/cloud_project/ayiq.jpg"), "ayiq.jpg")
+        
+
+
+class TestSendAnywhere(unittest.TestCase):
+    def setUp(self) -> None:
+        self.api_key = "3e72d10d6808518af81b6cf986fae1e4bb839c78"
+        self.upload_url = "https://send-anywhere.com/web/v1/key"
+        self.device_url="https://send-anywhere.com/web/v1/device"
+        self.cookies={}
+        self.obj3=SendAnywhere()
+        
+    def test_apikey(self):
+        self.assertEqual(self.obj3.api_key, self.api_key)
+        
         
 if __name__ == '__main__':
     unittest.main()       
