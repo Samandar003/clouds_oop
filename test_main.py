@@ -31,6 +31,9 @@ class TestCloudStorage(unittest.TestCase):
     def test_vanish_file(self):
         self.assertNotEqual(self.obj1.vanish_file(12), f"File with file_id {12} deleted.")
     
+    def test_pic_checksize(self):
+        self.assertIsNotNone(self.obj2.check_file_size("ayiq.jpg")) # cloud obj is tested
+        
 if __name__ == '__main__':
     unittest.main()       
     

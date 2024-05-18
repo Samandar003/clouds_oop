@@ -6,7 +6,7 @@ import json
 import random
 
 class CloudStorage:
-    counts=0
+    count=0
     def __init__(self) -> None:
         self.connection=sqlite3.connect('storage.db')
         self.table="Files"
@@ -33,8 +33,7 @@ class CloudStorage:
     
     @staticmethod
     def generate_6_digit_id():
-        return ''.join([str(random.randint(0, 9)) for _ in range(6)])
-
+        return random.randint(100000, 999999)
     
     def read_file(self, file_path):
         try:
@@ -73,6 +72,7 @@ class CloudStorage:
             with open(file_path, 'wb') as file:
                 file.write(file_content)
             self.connection.close()
+            print("donwloaded..")
         except sqlite3.Error as er:
             print(er)
             return None
@@ -137,8 +137,9 @@ class SendAnywhere(CloudStorage):
 
 
 obj=CloudStorage()
-# print(obj.store_file("utils.py"))
-obj.retrieve_file("072621")
+print(CloudStorage.file_exist("something.html"))
+print(obj.store_file("utils.py"))
+# obj.retrieve_file("072621")
 
 
 # obj=SendAnywhere()
