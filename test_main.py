@@ -65,7 +65,9 @@ class TestSendAnywhere(unittest.TestCase):
     def test_receive_file(self):
         self.assertIsNone(self.obj3.receieve_file(456123, "https://sendanywhere"))
         
-        
+    def test_vanish_file(self):
+        self.assertEqual(self.obj3.vanish_file(45623), "File will wiped out after 10 mins")    
+    
 if __name__ == '__main__':
     unittest.main()       
     

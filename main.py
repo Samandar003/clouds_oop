@@ -107,10 +107,10 @@ class SendAnywhere(CloudStorage):
                 data = requests.get(self.device_url, auth=(self.api_key, ''))
                 device_key = data.json()['device_key']
                 data_p = {"file": [{"name": file_path, "size": 32.2}]}
-                print(data_p)
+                # print(data_p)
                 self.cookies={'device_key':device_key}
                 response=requests.get(self.upload_url, params=data_p, cookies=self.cookies)
-                print(response.text)
+                # print(response.text)
                 
                 if response.status_code == 200:
                     return response.json()['weblink']
@@ -129,21 +129,22 @@ class SendAnywhere(CloudStorage):
         response = requests.get(download_url, params=params, cookies=self.cookies)
         if response.status_code==200:
             return response.text
+        return None
         
         
     def vanish_file(self, file_id=None):   # in sendanywhere , it is automatically deleted after 10 mins
-        pass
+        return "File will wiped out after 10 mins"
         
 
 
 obj=CloudStorage()
-print(CloudStorage.file_exist("something.html"))
-print(obj.store_file("utils.py"))
+# print(CloudStorage.file_exist("something.html"))
+# print(obj.store_file("utils.py"))
 # obj.retrieve_file("072621")
 
 
-# obj=SendAnywhere()
-# obj.store_file("/home/samandar/samandar/1.pdf")
+obj=SendAnywhere()
+obj.store_file("/home/samandar/samandar/1.pdf")
 
 # print(obj.store_file("/home/samandar/samandar/ma0405b.pdf"))
 # obj.retrieve_file()
