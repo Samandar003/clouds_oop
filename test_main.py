@@ -56,6 +56,8 @@ class TestSendAnywhere(unittest.TestCase):
     def test_upload_url(self):
         self.assertEqual(self.obj3.upload_url, self.upload_url)
     
+    def test_read_file(self):
+        self.assertIsNone(self.obj3.read_file("sjjfhfh.thd"))
     
     
         
