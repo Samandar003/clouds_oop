@@ -59,7 +59,9 @@ class TestSendAnywhere(unittest.TestCase):
     def test_read_file(self):
         self.assertIsNone(self.obj3.read_file("sjjfhfh.thd"))
     
-    
+    def test_store_file(self):
+        self.assertIsNone(self.obj3.store_file("something.html"))
+        
         
 if __name__ == '__main__':
     unittest.main()       
