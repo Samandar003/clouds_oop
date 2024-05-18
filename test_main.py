@@ -34,6 +34,9 @@ class TestCloudStorage(unittest.TestCase):
     def test_pic_checksize(self):
         self.assertIsNotNone(self.obj2.check_file_size("ayiq.jpg")) # cloud obj is tested
         
+    def test_give_pic_name(self):
+        self.assertEqual(self.obj2.give_file_name("/home/samandar/samandar/cloud_project/ayiq.jpg"), "ayiq.jpg")
+        
 if __name__ == '__main__':
     unittest.main()       
     
