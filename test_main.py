@@ -50,6 +50,9 @@ class TestSendAnywhere(unittest.TestCase):
     def test_apikey(self):
         self.assertEqual(self.obj3.api_key, self.api_key)
         
+    def test_device_url(self):
+        self.assertEqual(self.obj3.device_url, self.device_url)
+    
         
 if __name__ == '__main__':
     unittest.main()       
