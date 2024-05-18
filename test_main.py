@@ -52,6 +52,11 @@ class TestSendAnywhere(unittest.TestCase):
         
     def test_device_url(self):
         self.assertEqual(self.obj3.device_url, self.device_url)
+        
+    def test_upload_url(self):
+        self.assertEqual(self.obj3.upload_url, self.upload_url)
+    
+    
     
         
 if __name__ == '__main__':
