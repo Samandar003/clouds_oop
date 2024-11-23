@@ -1,5 +1,5 @@
 # Use the official Python image from Docker Hub
-FROM python:3.8:alpine
+FROM python:3.8.2-alpine
 
 # Set environment variables to prevent Python from writing pyc files to disc
 # and to run in non-interactive mode
